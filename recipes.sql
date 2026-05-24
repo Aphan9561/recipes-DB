@@ -48,9 +48,9 @@ CREATE TABLE Equipment (
 CREATE TABLE Nutrition (
     nutritionID INT PRIMARY KEY,
     recipeID INT NOT NULL,
-    carbs INT,
-    calories INT,
-    protein INT,
+    carbs DECIMAL(10, 1),
+    calories DECIMAL(10, 1),
+    protein DECIMAL(10, 1),
 
     FOREIGN KEY (recipeID) REFERENCES Recipes(recipeID)
         ON DELETE CASCADE
