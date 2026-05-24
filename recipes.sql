@@ -6,7 +6,7 @@ USE RecipeDB;
 CREATE TABLE Recipes (
     recipeID INT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    duration TIME,
+    duration INT,
     serving_size INT,
     difficulty_level INT CHECK (difficulty_level BETWEEN 1 AND 5),
     photoURL VARCHAR(500),
@@ -162,7 +162,7 @@ CREATE TABLE Favorites (
 -- under 30 mins
 SELECT name, duration
 FROM Recipes
-WHERE duration < '00:30:00';
+WHERE duration < 30;
 
 -- 2. List recipes belonging to particular cuisine
 -- cuisine = italian
