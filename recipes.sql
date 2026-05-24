@@ -7,7 +7,7 @@ CREATE TABLE Recipes (
     recipeID INT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     duration INT,
-    serving_size INT,
+    yield VARCHAR(255),
     difficulty_level INT CHECK (difficulty_level BETWEEN 1 AND 5),
     photoURL VARCHAR(500),
     instructions TEXT
