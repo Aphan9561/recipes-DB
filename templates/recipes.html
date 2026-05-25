@@ -24,9 +24,7 @@
         <div class="recipe-grid">
         {% for recipe in recipes %}
             <div class="recipe-card">
-                <h2>
-                    <a href="/recipes/{{ recipe.recipeID }}"> {{ recipe.name }} </a>
-                </h2>
+                <h2><a href="/recipes/{{ recipe.recipeID }}"> {{ recipe.name }} </a></h2>
 
                 <p>Duration: {{ recipe.duration }}</p>
                 <p>Difficulty: {{ recipe.difficulty_level }}/5</p>

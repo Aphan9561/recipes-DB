@@ -312,19 +312,7 @@ AND r.recipeID NOT IN (
     WHERE chefID = 1
 );
 
--- 15. Make a shopping list based on particular recipes you want to try 
--- recipes = chicken soup, pasta alfredo
-SELECT DISTINCT i.name AS ingredient,
-       u.quantity,
-       u.units
-FROM UsedIn u
-JOIN Ingredients i
-    ON u.ingredientID = i.ingredientID
-JOIN Recipes r
-    ON u.recipeID = r.recipeID
-WHERE r.name IN ('Pasta Alfredo', 'Chicken Soup');
-
--- 16. Count the number of recipes in each cuisine 
+-- 15. Count the number of recipes in each cuisine 
 SELECT c.cuisine_name,
        COUNT(b.recipeID) AS recipe_count
 FROM Cuisines c

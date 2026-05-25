@@ -156,13 +156,13 @@ def add_recipe():
         minutes = request.form.get("duration_minutes", 0)
         hours = int(hours) if hours else 0
         minutes = int(minutes) if minutes else 0
-        duration = f"{hours:02}:{minutes:02}:00"
+        duration = (hours * 60) + minutes
 
         recipe_query = """
             INSERT INTO Recipes (
                 name,
                 duration,
-                serving_size,
+                yield,
                 difficulty_level,
                 photoURL,
                 instructions
@@ -395,73 +395,140 @@ def search():
 
 @app.get("/api/options/<filter_type>")
 def get_options(filter_type):
+
+    cursor = db.cursor(dictionary=True)
+
     mapping = {
         "cuisine": ("Cuisines", "cuisineID", "cuisine_name"),
         "category": ("Categories", "categoryID", "name"),
-        "chef": ("Chefs", "chefID", "username"),
-        "ingredient": ("Ingredients", "ingredientID", "name"),
+        "chefReviewed": ("Chefs", "chefID",  "username"),
+        "chefFavorite": ("Chefs", "chefID", "username"),
+        "ingredient": ("Ingredients", "ingredientID","name"),
         "equipment": ("Equipment", "equipmentID", "equipmentName"),
-        "diet": ("DietaryRestrictions", "dietaryRestrictionID", "name"),
+        "diet": ("DietaryRestrictions", "dietaryRestrictionID","name"),
     }
+
+    if filter_type not in mapping:
+        return []
 
     table, id_col, name_col = mapping[filter_type]
 
-    query = f"SELECT {id_col}, {name_col} FROM {table}"
+    query = f"""
+        SELECT {id_col}, {name_col}
+        FROM {table}
+        ORDER BY {name_col}
+    """
+
     cursor.execute(query)
 
-    return cursor.fetchall()
+    results = cursor.fetchall()
+
+    return results
 
 @app.post("/api/filter")
 def filter_recipes():
-
     data = request.json
     filter_type = data["filter_type"]
-    value_id = data["value_id"]
 
     query = """
         SELECT DISTINCT r.recipeID, r.name, r.photoURL
         FROM Recipes r
     """
-
     params = []
 
     if filter_type == "cuisine":
         query += """
-        JOIN Belongs b ON r.recipeID = b.recipeID
+        JOIN Belongs b
+            ON r.recipeID = b.recipeID
         WHERE b.cuisineID = %s
         """
+        params.append(data["value_id"])
 
     elif filter_type == "category":
         query += """
-        JOIN Has h ON r.recipeID = h.recipeID
+        JOIN Has h
+            ON r.recipeID = h.recipeID
         WHERE h.categoryID = %s
         """
+        params.append(data["value_id"])
 
-    elif filter_type == "chef":
+    elif filter_type == "chefReviewed":
         query += """
-        JOIN Reviews rev ON r.recipeID = rev.recipeID
+        JOIN Reviews rev
+            ON r.recipeID = rev.recipeID
         WHERE rev.chefID = %s
         """
+        params.append(data["value_id"])
+
+    elif filter_type == "chefFavorite":
+        query += """
+        JOIN Favorites f
+            ON r.recipeID = f.recipeID
+        WHERE f.chefID = %s
+        """
+        params.append(data["value_id"])
 
     elif filter_type == "ingredient":
         query += """
-        JOIN UsedIn u ON r.recipeID = u.recipeID
+        JOIN UsedIn u
+            ON r.recipeID = u.recipeID
         WHERE u.ingredientID = %s
         """
+        params.append(data["value_id"])
 
     elif filter_type == "equipment":
         query += """
-        JOIN NecessaryFor n ON r.recipeID = n.recipeID
+        JOIN NecessaryFor n
+            ON r.recipeID = n.recipeID
         WHERE n.equipmentID = %s
         """
+        params.append(data["value_id"])
 
     elif filter_type == "diet":
         query += """
-        JOIN Safe s ON r.recipeID = s.recipeID
+        JOIN Safe s
+            ON r.recipeID = s.recipeID
         WHERE s.dietaryRestrictionID = %s
         """
+        params.append(data["value_id"])
 
-    cursor.execute(query, (value_id,))
+    elif filter_type == "level":
+        query += """
+        WHERE r.difficulty_level = %s
+        """
+        params.append(data["value_id"])
+
+    elif filter_type == "duration":
+        query += """
+        WHERE r.duration <= %s
+        """
+        params.append(data["duration"])
+
+    elif filter_type == "rating":
+        query += """
+        JOIN Reviews rev
+            ON r.recipeID = rev.recipeID
+        WHERE rev.rating = %s
+        """
+        params.append(data["value_id"])
+
+    elif filter_type == "nutrition":
+        query += """
+        JOIN Nutrition n
+            ON r.recipeID = n.recipeID
+
+        WHERE n.calories <= %s
+        AND n.protein >= %s
+        AND n.carbs <= %s
+        """
+        params.extend([
+            data["calories"],
+            data["protein"],
+            data["carbs"]
+        ])
+
+    cursor.execute(query, params)
+
     results = cursor.fetchall()
 
     return results

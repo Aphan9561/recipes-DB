@@ -25,75 +25,165 @@
             <option value="">Choose filter</option>
             <option value="cuisine">Cuisine</option>
             <option value="category">Category</option>
-            <option value="chef">Chef</option>
+            <option value="chefReviewed">Reviewed by Chef</option>
+            <option value="chefFavorite">Favorite by Chef</option>
             <option value="ingredient">Ingredient</option>
             <option value="equipment">Equipment</option>
             <option value="diet">Diet</option>
+            <option value="duration">Duration</option>
+            <option value="level">Level of Difficulty</option>
+            <option value="nutrition">Nutrition</option>
+            <option value="rating">Rating</option>
         </select>
 
-        <!-- <br><br> -->
-
-        <select id="valueSelect"></select>
+        <div id="dynamicInputs"></div>
 
         <button onclick="searchRecipes()">Search</button>
-
+        <br><br><br>
         <div id="results" class="recipe-grid"></div>
 
     </div>
 
     <script>
         let selectedType = "";
-        let selectedValue = "";
-
         document.getElementById("filterType").addEventListener("change", async function () {
             selectedType = this.value;
 
-            const res = await fetch(`/api/options/${selectedType}`);
-            const data = await res.json();
+            const container = document.getElementById("dynamicInputs");
+            container.innerHTML = "";
 
-            const dropdown = document.getElementById("valueSelect");
-            dropdown.innerHTML = "";
+            const entityFilters = [
+                "cuisine",
+                "category",
+                "chefReviewed",
+                "chefFavorite",
+                "ingredient",
+                "equipment",
+                "diet"
+            ];
 
-            data.forEach(item => {
-                const option = document.createElement("option");
+            if (entityFilters.includes(selectedType)) {
+                const res = await fetch(`/api/options/${selectedType}`);
+                const data = await res.json();
+                const dropdown = document.createElement("select");
+                dropdown.id = "valueSelect";
 
-                const keys = Object.keys(item);
-                option.value = item[keys[0]];
-                option.textContent = item[keys[1]];
+                data.forEach(item => {
+                    const option = document.createElement("option");
+                    const keys = Object.keys(item);
+                    option.value = item[keys[0]];
+                    option.textContent = item[keys[1]];
+                    dropdown.appendChild(option);
+                });
+                container.appendChild(dropdown);
+            }
 
-                dropdown.appendChild(option);
-            });
-        });
+            else if (selectedType === "level") {
+                const dropdown = document.createElement("select");
+                dropdown.id = "difficulty";
 
-        document.getElementById("valueSelect").addEventListener("change", function () {
-            selectedValue = this.value;
+                for (let i = 1; i <= 5; i++) {
+                    const option = document.createElement("option");
+                    option.value = i;
+                    option.textContent = `Level ${i}`;
+                    dropdown.appendChild(option);
+                }
+
+                container.appendChild(dropdown);
+            }
+
+            else if (selectedType === "rating") {
+                const dropdown = document.createElement("select");
+                dropdown.id = "rating";
+
+                for (let i = 1; i <= 5; i++) {
+                    const option = document.createElement("option");
+                    option.value = i;
+                    option.textContent = `${i} Stars`;
+                    dropdown.appendChild(option);
+                }
+
+                container.appendChild(dropdown);
+            }
+
+            else if (selectedType === "duration") {
+                container.innerHTML = `
+                    <input type="number" id="duration" placeholder="Max Minutes">
+                `;
+            }
+
+            else if (selectedType === "nutrition") {
+                container.innerHTML = `
+                    <input type="number" id="calories" placeholder="Max Calories">
+
+                    <input type="number" id="protein" placeholder="Min Protein">
+
+                    <input type="number" id="carbs" placeholder="Max Carbs">
+                `;
+            }
+
         });
 
         async function searchRecipes() {
+            let payload = {
+                filter_type: selectedType
+            };
+
+            const valueSelect = document.getElementById("valueSelect");
+
+            if (valueSelect) {
+                payload.value_id = valueSelect.value;
+            }
+
+            const difficulty = document.getElementById("difficulty");
+
+            if (difficulty) {
+                payload.value_id = difficulty.value;
+            }
+
+            const rating = document.getElementById("rating");
+
+            if (rating) {
+                payload.value_id = rating.value;
+            }
+
+            const duration = document.getElementById("duration");
+
+            if (duration) {
+                payload.duration = duration.value;
+            }
+
+            const calories = document.getElementById("calories");
+            const protein = document.getElementById("protein");
+            const carbs = document.getElementById("carbs");
+
+            if (calories && protein && carbs) {
+                payload.calories = calories.value;
+                payload.protein = protein.value;
+                payload.carbs = carbs.value;
+            }
+
             const res = await fetch("/api/filter", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    filter_type: selectedType,
-                    value_id: selectedValue
-                })
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
             });
 
             const data = await res.json();
-
             const container = document.getElementById("results");
             container.innerHTML = "";
 
             data.forEach(r => {
                 container.innerHTML += `
-                    <div>
-                        <a href="/recipes/${r.recipeID}"> ${r.name} 
+                    <div class="recipe-card">
+                        <a href="/recipes/${r.recipeID}"><h3>${r.name}</h3></a>
                         <img src="${r.photoURL}" width="150"/>
-                        </a>
                     </div>
                 `;
             });
         }
-    </script>
+        </script>
 </body>
 </html>
