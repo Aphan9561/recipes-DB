@@ -147,7 +147,7 @@ def recipe_details(recipe_id):
 def add_recipe():
     if request.method == "POST":
         name = request.form["name"]
-        serving_size = request.form["serving_size"]
+        yields = request.form["yield"]
         difficulty_level = request.form["difficulty_level"]
         photoURL = request.form["photoURL"]
         instructions = request.form["instructions"]
@@ -172,7 +172,7 @@ def add_recipe():
         recipe_values = (
             name,
             duration,
-            serving_size,
+            yields,
             difficulty_level,
             photoURL,
             instructions
