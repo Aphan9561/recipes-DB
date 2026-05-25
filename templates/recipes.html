@@ -2,28 +2,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Recipes</title>
 </head>
 <body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">RecipeDB</a>
+
+            <div class="nav-links">
+                <a href="/recipes">Recipes</a>
+                <a href="/search">Search</a>
+                <a href="/add_recipe">Add Recipe</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
     <h1>Recipes</h1>
     
-    {% for recipe in recipes %}
-        <div>
-            <h2>
-                <a href="/recipes/{{ recipe.recipeID }}">
-                    {{ recipe.name }}
-                </a>
-            </h2>
+        <div class="recipe-grid">
+        {% for recipe in recipes %}
+            <div class="recipe-card">
+                <h2>
+                    <a href="/recipes/{{ recipe.recipeID }}"> {{ recipe.name }} </a>
+                </h2>
 
-            <p>Duration: {{ recipe.duration }}</p>
-            <p>Difficulty: {{ recipe.difficulty_level }}/5</p>
+                <p>Duration: {{ recipe.duration }}</p>
+                <p>Difficulty: {{ recipe.difficulty_level }}/5</p>
 
-            {% if recipe.photoURL %}
-                <img src="{{ recipe.photoURL }}" width="250">
-            {% endif %}
+                {% if recipe.photoURL %}
+                    <img src="{{ recipe.photoURL }}">
+                {% endif %}
+            </div>
+        {% endfor %}
         </div>
-        <hr>
-    {% endfor %}
+    </div>
 
 </body>
 </html>

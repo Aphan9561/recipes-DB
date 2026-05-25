@@ -1,10 +1,165 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Add Recipe</title>
 </head>
+
 <body>
-    
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">RecipeDB</a>
+
+            <div class="nav-links">
+                <a href="/recipes">Recipes</a>
+                <a href="/search">Search</a>
+                <a href="/add_recipe">Add Recipe</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="form-card">
+            <h1>Add New Recipe</h1>
+
+            <form method="POST">
+                <div class="form-section">
+                    <h2>Recipe Information</h2>
+
+                    <div class="form-group">
+                        <label>Recipe Name</label>
+                        <input type="text" name="name" required>
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label>Duration</label>
+
+                            <div class="duration-inputs">
+                                <input type="number" name="duration_hours" min="0"placeholder="Hours">
+                                <input type="number" name="duration_minutes" min="0" max="59" placeholder="Minutes" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Serving Size</label>
+                            <input type="number" name="serving_size" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Difficulty (1-5)</label>
+                            <input type="number" min="1" max="5" name="difficulty_level" required>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label>Photo URL</label>
+                        <input type="text" name="photoURL">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Instructions</label>
+                        <textarea name="instructions" rows="8" required></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Nutrition</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Calories</label>
+                            <input type="number" name="calories">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Protein (g)</label>
+                            <input type="number" name="protein">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Carbs (g)</label>
+                            <input type="number" name="carbs">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-header">
+                        <h2>Ingredients</h2>
+
+                        <button type="button" class="small-btn"  onclick="addIngredient()">
+                            + Add Ingredient
+                        </button>
+                    </div>
+
+                    <div id="ingredients-container">
+                        <div class="ingredient-row">
+                            <input type="text" name="ingredients[]" placeholder="Ingredient" required>
+
+                            <input type="number" name="quantities[]" placeholder="Qty" required>
+
+                            <input type="text" name="units[]" placeholder="Units" required>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Categories</h2>
+
+                    <input type="text" name="categories[]" placeholder="Example: Dessert">
+
+                </div>
+
+                <div class="form-section">
+                    <h2>Cuisines</h2>
+
+                    <input type="text" name="cuisines[]" placeholder="Example: Italian">
+                </div>
+
+                <div class="form-section">
+                    <h2>Dietary Restrictions</h2>
+
+                    <input type="text" name="restrictions[]" placeholder="Example: Gluten-Free">
+
+                </div>
+
+                <div class="form-section">
+                    <h2>Equipment</h2>
+
+                    <input type="text" name="equipment[]" placeholder="Example: Blender">
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Save Recipe
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function addIngredient(){
+            const container = document.getElementById("ingredients-container");
+
+            const row = document.createElement("div");
+
+            row.classList.add("ingredient-row");
+
+            row.innerHTML = `
+                <input type="text" name="ingredients[]" placeholder="Ingredient" required>
+
+                <input type="number" name="quantities[]" placeholder="Qty" required>
+
+                <input type="text" name="units[]" placeholder="Units" required>
+            `;
+            container.appendChild(row);
+        }
+    </script>
 </body>
 </html>

@@ -1,20 +1,40 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/styles.css">
-    <title>Recipes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>RecipeDB</title>
 </head>
+
 <body>
-    <h1>RecipeDB</h1>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">RecipeDB</a>
 
-    <p>
-    Find recipes by cuisine, ingredients, dietary restrictions,
-    nutrition, and more.
-    </p>
+            <div class="nav-links">
+                <a href="/recipes">Recipes</a>
+                <a href="/search">Search</a>
+                <a href="/add_recipe">Add Recipe</a>
+            </div>
+        </div>
+    </nav>
 
-    <a href="/recipes">Recipes</a>
-    <a href="/search">Search</a>
-    <a href="/add_recipe">Add Recipe</a>
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <h1>Welcome to RecipeDB</h1>
+
+            <div class="hero-buttons">
+                <a href="/recipes" class="primary-btn"> Explore Recipes</a>
+
+                <a href="/add_recipe" class="secondary-btn"> Add Your Recipe </a>
+            </div>
+
+        </div>
+
+    </section>
+
 </body>
 </html>

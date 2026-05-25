@@ -2,9 +2,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Document</title>
 </head>
 <body>
-    
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">RecipeDB</a>
+
+            <div class="nav-links">
+                <a href="/recipes">Recipes</a>
+                <a href="/search">Search</a>
+                <a href="/add_recipe">Add Recipe</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Search</h1>
+
+        <select id="filterType">
+            <option value="">Choose filter</option>
+            <option value="cuisine">Cuisine</option>
+            <option value="category">Category</option>
+            <option value="chef">Chef</option>
+            <option value="ingredient">Ingredient</option>
+            <option value="equipment">Equipment</option>
+            <option value="diet">Diet</option>
+        </select>
+
+        <!-- <br><br> -->
+
+        <select id="valueSelect"></select>
+
+        <button onclick="searchRecipes()">Search</button>
+
+        <div id="results" class="recipe-grid"></div>
+
+    </div>
+
+    <script>
+        let selectedType = "";
+        let selectedValue = "";
+
+        document.getElementById("filterType").addEventListener("change", async function () {
+            selectedType = this.value;
+
+            const res = await fetch(`/api/options/${selectedType}`);
+            const data = await res.json();
+
+            const dropdown = document.getElementById("valueSelect");
+            dropdown.innerHTML = "";
+
+            data.forEach(item => {
+                const option = document.createElement("option");
+
+                const keys = Object.keys(item);
+                option.value = item[keys[0]];
+                option.textContent = item[keys[1]];
+
+                dropdown.appendChild(option);
+            });
+        });
+
+        document.getElementById("valueSelect").addEventListener("change", function () {
+            selectedValue = this.value;
+        });
+
+        async function searchRecipes() {
+            const res = await fetch("/api/filter", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    filter_type: selectedType,
+                    value_id: selectedValue
+                })
+            });
+
+            const data = await res.json();
+
+            const container = document.getElementById("results");
+            container.innerHTML = "";
+
+            data.forEach(r => {
+                container.innerHTML += `
+                    <div>
+                        <a href="/recipes/${r.recipeID}"> ${r.name} 
+                        <img src="${r.photoURL}" width="150"/>
+                        </a>
+                    </div>
+                `;
+            });
+        }
+    </script>
 </body>
 </html>
