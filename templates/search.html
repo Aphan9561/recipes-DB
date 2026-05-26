@@ -1,189 +1,256 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <title>Document</title>
+    <title>Search</title>
+
+    <style>
+        .suggestions {
+            border: 1px solid #ccc;
+            background: white;
+            position: absolute;
+            width: 250px;
+            z-index: 1000;
+        }
+
+        .suggestion-item {
+            padding: 6px;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background: #eee;
+        }
+
+        .chef-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+    </style>
 </head>
+
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="/" class="logo">RecipeDB</a>
 
-            <div class="nav-links">
-                <a href="/recipes">Recipes</a>
-                <a href="/search">Search</a>
-                <a href="/add_recipe">Add Recipe</a>
-            </div>
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/" class="logo">RecipeDB</a>
+        <div class="nav-links">
+            <a href="/recipes">Recipes</a>
+            <a href="/search">Search</a>
+            <a href="/add_recipe">Add Recipe</a>
         </div>
-    </nav>
-
-    <div class="container">
-        <h1>Search</h1>
-
-        <select id="filterType">
-            <option value="">Choose filter</option>
-            <option value="cuisine">Cuisine</option>
-            <option value="category">Category</option>
-            <option value="chefReviewed">Reviewed by Chef</option>
-            <option value="chefFavorite">Favorite by Chef</option>
-            <option value="ingredient">Ingredient</option>
-            <option value="equipment">Equipment</option>
-            <option value="diet">Diet</option>
-            <option value="duration">Duration</option>
-            <option value="level">Level of Difficulty</option>
-            <option value="nutrition">Nutrition</option>
-            <option value="rating">Rating</option>
-        </select>
-
-        <div id="dynamicInputs"></div>
-
-        <button onclick="searchRecipes()">Search</button>
-        <br><br><br>
-        <div id="results" class="recipe-grid"></div>
-
     </div>
+</nav>
 
-    <script>
-        let selectedType = "";
-        document.getElementById("filterType").addEventListener("change", async function () {
-            selectedType = this.value;
+<div class="container">
 
-            const container = document.getElementById("dynamicInputs");
-            container.innerHTML = "";
+    <h1>Search</h1>
 
-            const entityFilters = [
-                "cuisine",
-                "category",
-                "chefReviewed",
-                "chefFavorite",
-                "ingredient",
-                "equipment",
-                "diet"
-            ];
+    <select id="filterType">
+        <option value="">Choose filter</option>
+        <option value="cuisine">Cuisine</option>
+        <option value="category">Category</option>
+        <option value="chefReviewed">Reviewed by Chef</option>
+        <option value="chefFavorite">Favorite by Chef</option>
+        <option value="ingredient">Ingredient</option>
+        <option value="equipment">Equipment</option>
+        <option value="diet">Diet</option>
+        <option value="duration">Duration</option>
+        <option value="level">Level</option>
+        <option value="nutrition">Nutrition</option>
+        <option value="rating">Rating</option>
+    </select>
 
-            if (entityFilters.includes(selectedType)) {
-                const res = await fetch(`/api/options/${selectedType}`);
-                const data = await res.json();
-                const dropdown = document.createElement("select");
-                dropdown.id = "valueSelect";
+    <br><br>
 
-                data.forEach(item => {
-                    const option = document.createElement("option");
-                    const keys = Object.keys(item);
-                    option.value = item[keys[0]];
-                    option.textContent = item[keys[1]];
-                    dropdown.appendChild(option);
-                });
-                container.appendChild(dropdown);
-            }
+    <div id="dynamicInputs"></div>
 
-            else if (selectedType === "level") {
-                const dropdown = document.createElement("select");
-                dropdown.id = "difficulty";
+    <br>
 
-                for (let i = 1; i <= 5; i++) {
-                    const option = document.createElement("option");
-                    option.value = i;
-                    option.textContent = `Level ${i}`;
-                    dropdown.appendChild(option);
-                }
+    <button onclick="searchRecipes()">Search</button>
 
-                container.appendChild(dropdown);
-            }
+    <br><br>
 
-            else if (selectedType === "rating") {
-                const dropdown = document.createElement("select");
-                dropdown.id = "rating";
+    <div id="results" class="recipe-grid"></div>
 
-                for (let i = 1; i <= 5; i++) {
-                    const option = document.createElement("option");
-                    option.value = i;
-                    option.textContent = `${i} Stars`;
-                    dropdown.appendChild(option);
-                }
+    <button onclick="searchRecipes(false)">Load More</button>
 
-                container.appendChild(dropdown);
-            }
+</div>
 
-            else if (selectedType === "duration") {
-                container.innerHTML = `
-                    <input type="number" id="duration" placeholder="Max Minutes">
-                `;
-            }
+<script>
+let selectedType = "";
+let currentOffset = 0;
+const LIMIT = 20;
+let selectedChefId = null;
 
-            else if (selectedType === "nutrition") {
-                container.innerHTML = `
-                    <input type="number" id="calories" placeholder="Max Calories">
+document.getElementById("filterType").addEventListener("change", async function () {
 
-                    <input type="number" id="protein" placeholder="Min Protein">
+    selectedType = this.value;
+    selectedChefId = null;
 
-                    <input type="number" id="carbs" placeholder="Max Carbs">
-                `;
-            }
+    const container = document.getElementById("dynamicInputs");
+    container.innerHTML = "";
 
+    const entityFilters = ["cuisine","category","ingredient","equipment","diet"];
+
+    if (entityFilters.includes(selectedType)) {
+
+        const res = await fetch(`/api/options/${selectedType}`);
+        const data = await res.json();
+
+        const dropdown = document.createElement("select");
+        dropdown.id = "valueSelect";
+
+        data.forEach(item => {
+            const option = document.createElement("option");
+            const keys = Object.keys(item);
+            option.value = item[keys[0]];
+            option.textContent = item[keys[1]];
+            dropdown.appendChild(option);
         });
 
-        async function searchRecipes() {
-            let payload = {
-                filter_type: selectedType
-            };
+        container.appendChild(dropdown);
+    }
 
-            const valueSelect = document.getElementById("valueSelect");
+    else if (selectedType === "chefReviewed" || selectedType === "chefFavorite") {
 
-            if (valueSelect) {
-                payload.value_id = valueSelect.value;
+        container.innerHTML = `
+            <div class="chef-wrapper">
+                <input type="text" id="chefInput" placeholder="Type chef username...">
+                <div id="chefSuggestions" class="suggestions"></div>
+            </div>
+        `;
+
+        const input = document.getElementById("chefInput");
+        const box = document.getElementById("chefSuggestions");
+
+        let timeout;
+
+        input.addEventListener("input", function () {
+
+            clearTimeout(timeout);
+            selectedChefId = null;
+
+            const q = this.value;
+
+            if (q.length < 2) {
+                box.innerHTML = "";
+                return;
             }
 
-            const difficulty = document.getElementById("difficulty");
+            timeout = setTimeout(async () => {
 
-            if (difficulty) {
-                payload.value_id = difficulty.value;
-            }
+                const res = await fetch(`/api/search/chefs?q=${q}`);
+                const data = await res.json();
 
-            const rating = document.getElementById("rating");
+                box.innerHTML = "";
 
-            if (rating) {
-                payload.value_id = rating.value;
-            }
+                data.forEach(chef => {
+                    const div = document.createElement("div");
+                    div.className = "suggestion-item";
+                    div.textContent = chef.username;
 
-            const duration = document.getElementById("duration");
+                    div.onclick = () => {
+                        input.value = chef.username;
+                        selectedChefId = chef.chefID;
+                        box.innerHTML = "";
+                    };
 
-            if (duration) {
-                payload.duration = duration.value;
-            }
+                    box.appendChild(div);
+                });
 
-            const calories = document.getElementById("calories");
-            const protein = document.getElementById("protein");
-            const carbs = document.getElementById("carbs");
+            }, 200);
+        });
+    }
 
-            if (calories && protein && carbs) {
-                payload.calories = calories.value;
-                payload.protein = protein.value;
-                payload.carbs = carbs.value;
-            }
+    else if (selectedType === "level") {
+        container.innerHTML = `
+            <select id="valueSelect">
+                ${[1,2,3,4,5].map(i => `<option value="${i}">Level ${i}</option>`).join("")}
+            </select>
+        `;
+    }
 
-            const res = await fetch("/api/filter", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
-            });
+    else if (selectedType === "rating") {
+        container.innerHTML = `
+            <select id="valueSelect">
+                ${[1,2,3,4,5].map(i => `<option value="${i}">${i} Stars</option>`).join("")}
+            </select>
+        `;
+    }
 
-            const data = await res.json();
-            const container = document.getElementById("results");
-            container.innerHTML = "";
+    else if (selectedType === "duration") {
+        container.innerHTML = `<input type="number" id="duration" placeholder="Max Minutes">`;
+    }
 
-            data.forEach(r => {
-                container.innerHTML += `
-                    <div class="recipe-card">
-                        <a href="/recipes/${r.recipeID}"><h3>${r.name}</h3></a>
-                        <img src="${r.photoURL}" width="150"/>
-                    </div>
-                `;
-            });
-        }
-        </script>
+    else if (selectedType === "nutrition") {
+        container.innerHTML = `
+            <input type="number" id="calories" placeholder="Max Calories">
+            <input type="number" id="protein" placeholder="Min Protein">
+            <input type="number" id="carbs" placeholder="Max Carbs">
+        `;
+    }
+});
+
+async function searchRecipes(reset = true) {
+
+    if (reset) {
+        currentOffset = 0;
+        document.getElementById("results").innerHTML = "";
+    }
+
+    let payload = {
+        filter_type: selectedType,
+        limit: LIMIT,
+        offset: currentOffset
+    };
+
+    const valueSelect = document.getElementById("valueSelect");
+    if (valueSelect) payload.value_id = valueSelect.value;
+
+    const duration = document.getElementById("duration");
+    if (duration) payload.duration = duration.value;
+
+    const calories = document.getElementById("calories");
+    const protein = document.getElementById("protein");
+    const carbs = document.getElementById("carbs");
+
+    if (calories && protein && carbs) {
+        payload.calories = calories.value;
+        payload.protein = protein.value;
+        payload.carbs = carbs.value;
+    }
+
+    if (selectedType === "chefReviewed" || selectedType === "chefFavorite") {
+        payload.value_id = selectedChefId;
+    }
+
+    const res = await fetch("/api/filter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    const container = document.getElementById("results");
+
+    data.forEach(r => {
+        container.innerHTML += `
+            <div class="recipe-card">
+                <a href="/recipes/${r.recipeID}">
+                    <h3>${r.name}</h3>
+                </a>
+                <img src="${r.photoURL}" width="150">
+            </div>
+        `;
+    });
+
+    currentOffset += LIMIT;
+}
+</script>
+
 </body>
 </html>

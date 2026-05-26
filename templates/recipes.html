@@ -5,37 +5,70 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Recipes</title>
 </head>
+
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="/" class="logo">RecipeDB</a>
 
-            <div class="nav-links">
-                <a href="/recipes">Recipes</a>
-                <a href="/search">Search</a>
-                <a href="/add_recipe">Add Recipe</a>
-            </div>
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/" class="logo">RecipeDB</a>
+
+        <div class="nav-links">
+            <a href="/recipes">Recipes</a>
+            <a href="/search">Search</a>
+            <a href="/add_recipe">Add Recipe</a>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container">
+<div class="container">
     <h1>Recipes</h1>
-    
-        <div class="recipe-grid">
+
+    <div id="recipeGrid" class="recipe-grid">
         {% for recipe in recipes %}
             <div class="recipe-card">
-                <h2><a href="/recipes/{{ recipe.recipeID }}"> {{ recipe.name }} </a></h2>
+                <h2>
+                    <a href="/recipes/{{ recipe.recipeID }}">
+                        {{ recipe.name }}
+                    </a>
+                </h2>
 
                 <p>Duration: {{ recipe.duration }}</p>
                 <p>Difficulty: {{ recipe.difficulty_level }}/5</p>
 
                 {% if recipe.photoURL %}
-                    <img src="{{ recipe.photoURL }}">
+                    <img src="{{ recipe.photoURL }}" width="150">
                 {% endif %}
             </div>
         {% endfor %}
-        </div>
     </div>
+
+    <div class="load-more-container">
+        <button onclick="loadMore()">Load More</button>
+    </div>
+</div>
+
+<script>
+    let currentPage = 1;
+
+    async function loadMore() {
+        currentPage += 1;
+
+        const res = await fetch(`/recipes?page=${currentPage}`);
+        const html = await res.text();
+
+        // Parse returned HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        const newCards = doc.querySelectorAll(".recipe-card");
+
+        const grid = document.getElementById("recipeGrid");
+
+        newCards.forEach(card => {
+            grid.appendChild(card);
+        });
+    }
+</script>
 
 </body>
 </html>

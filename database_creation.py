@@ -10,7 +10,7 @@ PRAGMA foreign_keys = ON;
 
 -- RECIPES
 CREATE TABLE Recipes (
-    recipeID INT PRIMARY KEY,
+    recipeID INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(255) NOT NULL,
     duration INT,
     yield VARCHAR(255),
@@ -21,38 +21,38 @@ CREATE TABLE Recipes (
 
 -- CATEGORIES
 CREATE TABLE Categories (
-    categoryID INT PRIMARY KEY,
+    categoryID INTEGER PRIMARY KEY AUTOINCREMENT, 
     name VARCHAR(100) NOT NULL
 );
 
 -- DIETARY RESTRICTIONS
 CREATE TABLE DietaryRestrictions (
-    dietaryRestrictionID INT PRIMARY KEY,
+    dietaryRestrictionID INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(100) NOT NULL
 );
 
 -- CUISINES
 CREATE TABLE Cuisines (
-    cuisineID INT PRIMARY KEY,
+    cuisineID INTEGER PRIMARY KEY AUTOINCREMENT,
     cuisine_name VARCHAR(100) NOT NULL
 );
 
 -- INGREDIENTS
 CREATE TABLE Ingredients (
-    ingredientID INT PRIMARY KEY,
+    ingredientID INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(100) NOT NULL
 );
 
 -- EQUIPMENT
 CREATE TABLE Equipment (
-    equipmentID INT PRIMARY KEY,
+    equipmentID INTEGER PRIMARY KEY AUTOINCREMENT,
     equipmentName VARCHAR(100) NOT NULL
 );
 
 -- NUTRITION
 -- Weak entity dependent on Recipes
 CREATE TABLE Nutrition (
-    nutritionID INT PRIMARY KEY,
+    nutritionID INTEGER PRIMARY KEY AUTOINCREMENT,
     recipeID INT NOT NULL,
     carbs DECIMAL(10, 1),
     calories DECIMAL(10, 1),
@@ -64,13 +64,13 @@ CREATE TABLE Nutrition (
 
 -- CHEFS
 CREATE TABLE Chefs (
-    chefID INT PRIMARY KEY,
+    chefID INTEGER PRIMARY KEY AUTOINCREMENT,
     username VARCHAR(100) NOT NULL
 );
 
 -- REVIEWS
 CREATE TABLE Reviews (
-    reviewID INT PRIMARY KEY,
+    reviewID INTEGER PRIMARY KEY AUTOINCREMENT,
     rating INT CHECK (rating BETWEEN 0 AND 5),
     description VARCHAR(1000),
     recipeID INT NOT NULL,

@@ -500,3 +500,24 @@ textarea{
     background: #17496b;
 }
 
+.suggestions {
+    border: 1px solid #ccc;
+    max-width: 300px;
+    background: white;
+    position: absolute;
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background: #eee;
+}
+
+.chef-wrapper {
+    position: relative;
+    display: inline-block;
+}
