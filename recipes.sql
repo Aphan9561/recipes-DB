@@ -65,7 +65,7 @@ CREATE TABLE Chefs (
 -- REVIEWS
 CREATE TABLE Reviews (
     reviewID INT PRIMARY KEY,
-    rating INT CHECK (rating BETWEEN 1 AND 5),
+    rating INT CHECK (rating BETWEEN 0 AND 5),
     description VARCHAR(1000),
     recipeID INT NOT NULL,
     chefID INT NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE Reviews (
 CREATE TABLE UsedIn (
     ingredientID INT,
     recipeID INT,
-    quantity INT,
+    quantity VARCHAR(10),
     units VARCHAR(50),
     PRIMARY KEY (ingredientID, recipeID),
 
