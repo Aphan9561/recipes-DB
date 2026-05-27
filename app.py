@@ -449,7 +449,7 @@ def filter_recipes():
         params.append(len(ids))
 
     elif filter_type == "equipment":
-        query += " JOIN NecessaryFor n ON r.recipeID = n.recipeID WHERE n.equipmentID = ?"
+        query += " LEFT JOIN NecessaryFor n ON r.recipeID = n.recipeID AND n.equipmentID = ? WHERE n.equipmentID IS NULL"
         params.append(data["value_id"])
 
     elif filter_type == "diet":
