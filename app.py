@@ -506,8 +506,13 @@ def filter_recipes():
         params.append(data["duration"])
 
     elif filter_type == "rating":
-        query += " JOIN Reviews rev ON r.recipeID = rev.recipeID WHERE rev.rating = ?"
-        params.append(data["value_id"])
+        query = """SELECT r.recipeID, r.name, r.photoURL, AVG(rev.rating) AS avg_r
+                FROM Recipes r
+                JOIN Reviews rev ON r.recipeID = rev.recipeID
+                WHERE rev.rating BETWEEN 1 AND 5
+                GROUP BY r.recipeID, r.name, r.photoURL
+                HAVING AVG(rev.rating) > ?"""
+        params.append(int(data["value_id"]))
 
     elif filter_type == "nutrition":
         query += """
