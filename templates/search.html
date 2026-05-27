@@ -5,30 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Search</title>
-
-    <style>
-        .suggestions {
-            border: 1px solid #ccc;
-            background: white;
-            position: absolute;
-            width: 250px;
-            z-index: 1000;
-        }
-
-        .suggestion-item {
-            padding: 6px;
-            cursor: pointer;
-        }
-
-        .suggestion-item:hover {
-            background: #eee;
-        }
-
-        .chef-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-    </style>
 </head>
 
 <body>
@@ -48,34 +24,40 @@
 
     <h1>Search</h1>
 
-    <select id="filterType">
-        <option value="">Choose filter</option>
-        <option value="cuisine">Cuisine</option>
-        <option value="category">Category</option>
-        <option value="chefReviewed">Reviewed by Chef</option>
-        <option value="chefFavorite">Favorite by Chef</option>
-        <option value="ingredient">Ingredient</option>
-        <option value="equipment">Equipment</option>
-        <option value="diet">Diet</option>
-        <option value="duration">Duration</option>
-        <option value="level">Level</option>
-        <option value="nutrition">Nutrition</option>
-        <option value="rating">Rating</option>
-    </select>
+    <div class="search-controls">
 
-    <br><br>
+        <div class="input-group">
+            <label for="filterType">Filter Type</label>
 
-    <div id="dynamicInputs"></div>
+            <select id="filterType">
+                <option value="">Choose filter</option>
+                <option value="cuisine">Cuisine</option>
+                <option value="category">Category</option>
+                <option value="chefReviewed">Reviewed by Chef</option>
+                <option value="chefFavorite">Favorite by Chef</option>
+                <option value="ingredient">Ingredient</option>
+                <option value="equipment">Equipment</option>
+                <option value="diet">Diet</option>
+                <option value="duration">Duration</option>
+                <option value="level">Level</option>
+                <option value="nutrition">Nutrition</option>
+                <option value="rating">Rating</option>
+            </select>
+        </div>
 
-    <br>
+        <div id="dynamicInputs" class="dynamic-inputs"></div>
 
-    <button onclick="searchRecipes()">Search</button>
+        <button onclick="searchRecipes()" class="primary-btn">
+            Search Recipes
+        </button>
+
+    </div>
 
     <br><br>
 
     <div id="results" class="recipe-grid"></div>
 
-    <button onclick="searchRecipes(false)">Load More</button>
+    <button onclick="searchRecipes(false)" class="secondary-btn">Load More</button>
 
 </div>
 
@@ -240,10 +222,16 @@ async function searchRecipes(reset = true) {
     data.forEach(r => {
         container.innerHTML += `
             <div class="recipe-card">
+
+                ${r.photoURL
+                    ? `<img src="${r.photoURL}" alt="${r.name}">`
+                    : ""
+                }
+
                 <a href="/recipes/${r.recipeID}">
                     <h3>${r.name}</h3>
                 </a>
-                <img src="${r.photoURL}" width="150">
+
             </div>
         `;
     });

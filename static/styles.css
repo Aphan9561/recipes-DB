@@ -521,3 +521,59 @@ textarea{
     position: relative;
     display: inline-block;
 }
+
+.search-controls{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label{
+    font-weight: 600;
+    color: #444;
+}
+
+/* SEARCH INPUTS */
+
+select,
+input,
+textarea{
+    width: 100%;
+    padding: 14px 16px;
+
+    border: 1px solid #d8d8d8;
+    border-radius: 14px;
+
+    font-size: 1rem;
+    font-family: inherit;
+
+    background: white;
+
+    transition: 0.2s;
+}
+
+select:focus,
+input:focus,
+textarea:focus{
+    outline: none;
+    border-color: #1f5f8b;
+    box-shadow: 0 0 0 4px rgba(31,95,139,0.1);
+}
+
+.dynamic-inputs{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.dynamic-inputs input,
+.dynamic-inputs select{
+    min-width: 220px;
+}
+
