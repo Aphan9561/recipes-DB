@@ -430,6 +430,7 @@ def filter_recipes():
             JOIN Reviews rev ON r.recipeID = rev.recipeID
             WHERE rev.chefID = ?
             ORDER BY rev.rating DESC
+            LIMIT 1;
         """
         params.append(data["value_id"])
 
@@ -488,8 +489,9 @@ def filter_recipes():
         """
         params.extend([data["calories"], data["protein"], data["carbs"]])
 
-    query += " LIMIT ? OFFSET ?"
-    params.extend([limit, offset])
+    if filter_type != "chefHighest":
+        query += " LIMIT ? OFFSET ?"
+        params.extend([limit, offset])
 
     cursor.execute(query, params)
     results = cursor.fetchall()
