@@ -29,12 +29,31 @@
             <div class="hero-buttons">
                 <a href="/recipes" class="primary-btn"> Explore Recipes</a>
 
-                <a href="/add_recipe" class="secondary-btn"> Add Your Recipe </a>
+                <a href="/add_recipe" class="secondary-btn" > Add Your Recipe </a>
             </div>
 
+            <br><br>
+
+            <button onclick="loadCuisineCounts()" class="primary-btn"> Cuisine Counts </button>
+
+            <br><br>
+            <div id="cuisineCounts"></div>
         </div>
 
     </section>
 
+    <script>
+        async function loadCuisineCounts() {
+
+            const res = await fetch("/api/cuisine-counts");
+            const data = await res.json();
+
+            const container = document.getElementById("cuisineCounts");
+
+            container.innerHTML = data.map(c => `
+                <p>${c.cuisine_name}: ${c.recipe_count}</p>
+            `).join("");
+        }
+    </script>
 </body>
 </html>

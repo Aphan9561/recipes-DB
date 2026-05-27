@@ -262,7 +262,7 @@ SELECT recipeID,
 FROM Recipes
 WHERE difficulty_level = 3;
 
--- 12.List the highest rated recipe by a specific chef 
+-- 12. List the highest rated recipe by a specific chef 
 SELECT r.name,
        MAX(rev.rating) AS highest_rating
 FROM Recipes r

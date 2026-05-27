@@ -83,6 +83,15 @@ def recipe_details(recipe_id):
     """, (recipe_id,))
     reviews = cursor.fetchall()
 
+    # FAVORITE
+    cursor.execute("""
+        SELECT c.username
+        FROM Favorites f
+        JOIN Chefs c ON f.chefID = c.chefID
+        WHERE f.recipeID = ?;
+    """, (recipe_id,))
+    favorite = cursor.fetchall()
+
     # CATEGORIES
     cursor.execute("""
         SELECT c.name
@@ -118,6 +127,7 @@ def recipe_details(recipe_id):
         WHERE n.recipeID = ?;
     """, (recipe_id,))
     equipment = cursor.fetchall()
+    
 
     conn.close()
 
@@ -130,7 +140,8 @@ def recipe_details(recipe_id):
         categories=categories,
         cuisines=cuisines,
         dietary_restrictions=dietary_restrictions,
-        equipment=equipment
+        equipment=equipment,
+        favorite=favorite
     )
 
 
@@ -389,6 +400,24 @@ def search_chefs():
 
     results = cursor.fetchall()
     return jsonify([dict(r) for r in results])
+
+@app.get("/api/cuisine-counts")
+def cuisine_counts():
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT c.cuisine_name, COUNT(b.recipeID) AS recipe_count
+        FROM Cuisines c
+        LEFT JOIN Belongs b ON c.cuisineID = b.cuisineID
+        GROUP BY c.cuisineID, c.cuisine_name
+        ORDER BY recipe_count DESC;
+    """)
+
+    results = cursor.fetchall()
+
+    return jsonify([dict(row) for row in results])
 
 @app.post("/api/filter")
 def filter_recipes():
