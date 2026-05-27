@@ -207,17 +207,7 @@ JOIN Ingredients i
     ON u.ingredientID = i.ingredientID
 WHERE i.name IN ('Chicken', 'Rice', 'Garlic');
 
--- 6. List recipes written by a specific chef
--- chef = anna
-SELECT DISTINCT r.recipeID, r.name, c.username
-FROM Recipes r
-JOIN Reviews rev
-    ON r.recipeID = rev.recipeID
-JOIN Chefs c
-    ON rev.chefID = c.chefID
-WHERE c.username = 'Anna';
-
--- 7. List reviews written by specific user/chef and their corresponding recipe
+-- 6. List reviews written by specific user/chef and their corresponding recipe
 -- chef = anna
 SELECT c.username,
        r.name AS recipe_name,
@@ -272,21 +262,7 @@ SELECT recipeID,
 FROM Recipes
 WHERE difficulty_level = 3;
 
--- 12. List recipes favorited by chef that you like/whose recipes you have rated highly
--- 
-SELECT DISTINCT r.name,
-       c.username
-FROM Favorites f
-JOIN Recipes r
-    ON f.recipeID = r.recipeID
-JOIN Chefs c
-    ON f.chefID = c.chefID
-JOIN Reviews rev
-    ON r.recipeID = rev.recipeID
-WHERE rev.rating >= 4;
-
-
--- 13. List the highest rated recipe by a specific chef 
+-- 12.List the highest rated recipe by a specific chef 
 SELECT r.name,
        MAX(rev.rating) AS highest_rating
 FROM Recipes r

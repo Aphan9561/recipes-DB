@@ -33,8 +33,6 @@
                 <option value="">Choose filter</option>
                 <option value="cuisine">Cuisine</option>
                 <option value="category">Category</option>
-                <option value="chefReviewed">Reviewed by Chef</option>
-                <option value="chefFavorite">Favorite by Chef</option>
                 <option value="ingredient">Ingredient</option>
                 <option value="equipment">Equipment</option>
                 <option value="diet">Diet</option>
@@ -42,6 +40,9 @@
                 <option value="level">Level</option>
                 <option value="nutrition">Nutrition</option>
                 <option value="rating">Rating</option>
+                <option value="chefReviewed">Reviewed by Chef</option>
+                <option value="chefFavorite">Favorite by Chef</option>
+                <option value="chefHighest">Highest Rating by Particular Chef</option>
             </select>
         </div>
 
@@ -84,6 +85,9 @@ document.getElementById("filterType").addEventListener("change", async function 
 
         const dropdown = document.createElement("select");
         dropdown.id = "valueSelect";
+        if (selectedType == "ingredient" || selectedType == "diet") {
+            dropdown.multiple = true;
+        }
 
         data.forEach(item => {
             const option = document.createElement("option");
@@ -96,7 +100,7 @@ document.getElementById("filterType").addEventListener("change", async function 
         container.appendChild(dropdown);
     }
 
-    else if (selectedType === "chefReviewed" || selectedType === "chefFavorite") {
+    else if (selectedType === "chefReviewed" || selectedType === "chefFavorite" || selectedType === "chefHighest") {
 
         container.innerHTML = `
             <div class="chef-wrapper">
@@ -190,7 +194,14 @@ async function searchRecipes(reset = true) {
     };
 
     const valueSelect = document.getElementById("valueSelect");
-    if (valueSelect) payload.value_id = valueSelect.value;
+    if (valueSelect){
+        if (selectedType === "ingredient" || selectedType === "diet") {
+            payload.value_ids = Array.from(valueSelect.selectedOptions)
+                .map(option => option.value);
+        } else {
+            payload.value_id = valueSelect.value;
+        }
+    }
 
     const duration = document.getElementById("duration");
     if (duration) payload.duration = duration.value;
@@ -205,7 +216,7 @@ async function searchRecipes(reset = true) {
         payload.carbs = carbs.value;
     }
 
-    if (selectedType === "chefReviewed" || selectedType === "chefFavorite") {
+    if (selectedType === "chefReviewed" || selectedType === "chefFavorite" || selectedType === "chefHighest") {
         payload.value_id = selectedChefId;
     }
 

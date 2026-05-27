@@ -351,6 +351,8 @@ def get_options(filter_type):
         "category": ("Categories", "categoryID", "name"),
         "chefReviewed": ("Chefs", "chefID", "username"),
         "chefFavorite": ("Chefs", "chefID", "username"),
+        "chefHighest": ("Chefs", "chefID", "username"),
+        "chefFavNotRev": ("Chefs", "chefID", "username"),
         "ingredient": ("Ingredients", "ingredientID", "name"),
         "equipment": ("Equipment", "equipmentID", "equipmentName"),
         "diet": ("DietaryRestrictions", "dietaryRestrictionID", "name"),
@@ -421,17 +423,49 @@ def filter_recipes():
         query += " JOIN Favorites f ON r.recipeID = f.recipeID WHERE f.chefID = ?"
         params.append(data["value_id"])
 
-    elif filter_type == "ingredient":
-        query += " JOIN UsedIn u ON r.recipeID = u.recipeID WHERE u.ingredientID = ?"
+    elif filter_type == "chefHighest":
+        query = """
+            SELECT r.recipeID, r.name, r.photoURL, rev.rating
+            FROM Recipes r
+            JOIN Reviews rev ON r.recipeID = rev.recipeID
+            WHERE rev.chefID = ?
+            ORDER BY rev.rating DESC
+        """
         params.append(data["value_id"])
+
+    elif filter_type == "ingredient":
+        ids = data["value_ids"]
+
+        placeholders = ",".join(["?"] * len(ids))
+
+        query += f"""
+            JOIN UsedIn u ON r.recipeID = u.recipeID
+            WHERE u.ingredientID IN ({placeholders})
+            GROUP BY r.recipeID
+            HAVING COUNT(DISTINCT u.ingredientID) = ?
+        """
+
+        params.extend(ids)
+        params.append(len(ids))
 
     elif filter_type == "equipment":
         query += " JOIN NecessaryFor n ON r.recipeID = n.recipeID WHERE n.equipmentID = ?"
         params.append(data["value_id"])
 
     elif filter_type == "diet":
-        query += " JOIN Safe s ON r.recipeID = s.recipeID WHERE s.dietaryRestrictionID = ?"
-        params.append(data["value_id"])
+        ids = data["value_ids"]
+
+        placeholders = ",".join(["?"] * len(ids))
+
+        query += f"""
+            JOIN Safe s ON r.recipeID = s.recipeID
+            WHERE s.dietaryRestrictionID IN ({placeholders})
+            GROUP BY r.recipeID
+            HAVING COUNT(DISTINCT s.dietaryRestrictionID) = ?
+        """
+
+        params.extend(ids)
+        params.append(len(ids))
 
     elif filter_type == "level":
         query += " WHERE r.difficulty_level = ?"
